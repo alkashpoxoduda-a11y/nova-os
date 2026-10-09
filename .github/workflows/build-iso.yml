@@ -4,8 +4,7 @@ name: Build NOVA OS
 on:
   workflow_dispatch:
   push:
-    paths:
-      - ".github/workflows/build-iso.yml"
+  pull_request:
 
 permissions:
   contents: read
@@ -65,6 +64,7 @@ jobs:
 
           sudo lb config \
             --mode debian \
+            --system live \
             --distribution trixie \
             --architectures amd64 \
             --linux-packages "linux-image" \
@@ -80,7 +80,20 @@ jobs:
             --iso-application "NOVA OS" \
             --iso-publisher "NOVA Project" \
             --iso-volume "NOVA_OS"
-            
+
+      - name: Verify Live Build Configuration
+        run: |
+          echo "Verifying live-build configuration..."
+          if grep -rn "linux-generic" config/; then
+            echo "ERROR: linux-generic found in effective configuration!"
+            exit 1
+          fi
+          if ! grep -q 'LB_MODE="debian"' config/common; then
+            echo "ERROR: LB_MODE is not debian!"
+            exit 1
+          fi
+          echo "Verification passed: Configured for Debian with linux-image-amd64."
+
       - name: Build ISO
         run: |
           sudo lb build
