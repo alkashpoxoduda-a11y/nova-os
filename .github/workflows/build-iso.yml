@@ -61,6 +61,7 @@ jobs:
           live-boot
           live-config
           live-config-systemd
+          systemd-sysv
           firmware-linux
           firmware-linux-free
           firmware-misc-nonfree
@@ -94,15 +95,19 @@ jobs:
             --iso-publisher "NOVA Project" \
             --iso-volume "NOVA_OS"
 
-      - name: Verify Live Build Configuration
+      - name: Pre-build Audit & Verification
         run: |
-          echo "Verifying live-build configuration..."
+          echo "=== Pre-build Audit & Verification ==="
           if grep -rn "trixie/updates" config/; then
             echo "ERROR: Outdated 'trixie/updates' suite found in configuration!"
             exit 1
           fi
           if grep -rn "linux-generic" config/; then
             echo "ERROR: linux-generic found in effective configuration!"
+            exit 1
+          fi
+          if grep -E "sysvinit-core|live-config-sysvinit|initscripts" config/package-lists/; then
+            echo "ERROR: Conflicting SysV init packages detected in package list!"
             exit 1
           fi
           if ! grep -q 'LB_FIRMWARE_CHROOT="false"' config/binary; then
@@ -113,7 +118,7 @@ jobs:
             echo "ERROR: LB_MODE is not debian!"
             exit 1
           fi
-          echo "Verification passed: firmware-chroot disabled, trixie-security archive configured correctly."
+          echo "Audit passed cleanly: Systemd init, firmware-chroot disabled, trixie-security archive configured."
 
       - name: Build ISO
         run: |
@@ -121,6 +126,8 @@ jobs:
 
       - name: Verify ISO
         run: |
+          echo "=== Verifying ISO Artifact ==="
+          ls -lh *.iso || true
           find . -maxdepth 2 -type f -name "*.iso" -size +100M
           test -n "$(find . -maxdepth 2 -type f -name '*.iso' -size +100M -print -quit)"
 
