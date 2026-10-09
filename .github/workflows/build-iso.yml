@@ -1,0 +1,79 @@
+
+name: Build NOVA OS
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - ".github/workflows/build-iso.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+
+    steps:
+      - name: Get project
+        uses: actions/checkout@v4
+
+      - name: Free disk space
+        run: |
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /usr/share/dotnet
+
+      - name: Install build tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            live-build \
+            debootstrap \
+            squashfs-tools \
+            xorriso \
+            isolinux \
+            syslinux-common \
+            grub-pc-bin \
+            grub-efi-amd64-bin \
+            mtools \
+            dosfstools
+
+      - name: Configure NOVA OS
+        run: |
+          mkdir -p config/package-lists
+          cat > config/package-lists/nova.list.chroot <<'EOF'
+          task-kde-desktop
+          network-manager
+          firefox-esr
+          dolphin
+          konsole
+          kate
+          plasma-nm
+          systemsettings
+          sudo
+          calamares
+          papirus-icon-theme
+          EOF
+
+          sudo lb config \
+            --distribution trixie \
+            --architectures amd64 \
+            --binary-images iso-hybrid \
+            --archive-areas "main contrib non-free non-free-firmware" \
+            --debian-installer live \
+            --iso-application "NOVA OS" \
+            --iso-publisher "NOVA Project" \
+            --iso-volume "NOVA_OS"
+
+      - name: Build ISO
+        run: sudo lb build
+
+      - name: Upload ISO
+        uses: actions/upload-artifact@v4
+        with:
+          name: NOVA-OS-ISO
+          path: "*.iso"
+          if-no-files-found: error
+          retention-days: 7
