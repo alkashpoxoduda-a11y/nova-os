@@ -1,0 +1,42 @@
+{
+  "system": {
+    "name": "NOVA OS",
+    "version": "1.0.0",
+    "arch": "x86-64",
+    "base": "Debian Stable"
+  },
+  "default_profile": "nova-home",
+  "profiles": {
+    "nova-lite": {
+      "name": "NOVA Lite",
+      "description": "Оптимизирован для слабых ПК и ноутбуков",
+      "animations": false,
+      "transparency": false,
+      "background_services": "minimal",
+      "ram_saver": true
+    },
+    "nova-gaming": {
+      "name": "NOVA Gaming",
+      "description": "Максимальная производительность для игр",
+      "steam_integration": true,
+      "proton_support": true,
+      "gamemode": true,
+      "performance_governor": "performance"
+    },
+    "nova-dev": {
+      "name": "NOVA Dev",
+      "description": "Полный набор инструментов разработки",
+      "git_tools": true,
+      "docker_support": true,
+      "code_editors": ["vscode", "vscodium", "kate"],
+      "ai_assistant_integration": true
+    },
+    "nova-home": {
+      "name": "NOVA Home",
+      "description": "Баланс производительности, уюта и функциональности",
+      "animations": true,
+      "transparency": true,
+      "background_services": "standard"
+    }
+  }
+}
