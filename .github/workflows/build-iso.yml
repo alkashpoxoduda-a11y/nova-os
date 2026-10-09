@@ -38,11 +38,13 @@ jobs:
             grub-pc-bin \
             grub-efi-amd64-bin \
             mtools \
-            dosfstools
+            dosfstools \
+            debian-archive-keyring
 
       - name: Configure NOVA OS
         run: |
           mkdir -p config/package-lists
+
           cat > config/package-lists/nova.list.chroot <<'EOF'
           task-kde-desktop
           network-manager
@@ -62,13 +64,22 @@ jobs:
             --architectures amd64 \
             --binary-images iso-hybrid \
             --archive-areas "main contrib non-free non-free-firmware" \
+            --mirror-bootstrap http://deb.debian.org/debian \
+            --mirror-chroot http://deb.debian.org/debian \
+            --mirror-binary http://deb.debian.org/debian \
             --debian-installer live \
             --iso-application "NOVA OS" \
             --iso-publisher "NOVA Project" \
             --iso-volume "NOVA_OS"
 
       - name: Build ISO
-        run: sudo lb build
+        run: |
+          sudo lb build
+
+      - name: Verify ISO
+        run: |
+          find . -maxdepth 2 -type f -name "*.iso" -size +100M
+          test -n "$(find . -maxdepth 2 -type f -name '*.iso' -size +100M -print -quit)"
 
       - name: Upload ISO
         uses: actions/upload-artifact@v4
