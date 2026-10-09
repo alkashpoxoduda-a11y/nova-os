@@ -54,12 +54,10 @@ if [ ! -f "${ISO_DIR}/iso/live/filesystem.squashfs" ]; then
     echo "In production ISO build, live-build / debootstrap populates ${ISO_DIR}/iso/live/."
 fi
 
-echo "Creating bootable hybrid ISO with xorriso..."
+echo "Creating bootable ISO with xorriso..."
 xorriso -as mkisofs \
     -r -V "NOVA_OS_1_0" \
     -J -joliet-long \
-    -b boot/grub/grub.cfg \
-    -no-emul-boot -boot-load-size 4 -boot-info-table \
     -o "${OUTPUT_ISO}" "${ISO_DIR}/iso"
 
 echo "Calculating SHA256 checksum for release verification..."
