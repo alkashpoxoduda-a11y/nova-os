@@ -78,6 +78,7 @@ jobs:
           sudo lb config \
             --mode debian \
             --system live \
+            --initsystem systemd \
             --distribution trixie \
             --architectures amd64 \
             --linux-packages "linux-image" \
@@ -110,6 +111,10 @@ jobs:
             echo "ERROR: Conflicting SysV init packages detected in package list!"
             exit 1
           fi
+          if ! grep -q 'LB_INITSYSTEM="systemd"' config/common; then
+            echo "ERROR: LB_INITSYSTEM is not systemd!"
+            exit 1
+          fi
           if ! grep -q 'LB_FIRMWARE_CHROOT="false"' config/binary; then
             echo "ERROR: LB_FIRMWARE_CHROOT is not false!"
             exit 1
@@ -118,7 +123,7 @@ jobs:
             echo "ERROR: LB_MODE is not debian!"
             exit 1
           fi
-          echo "Audit passed cleanly: Systemd init, firmware-chroot disabled, trixie-security archive configured."
+          echo "Audit passed cleanly: Systemd init (LB_INITSYSTEM=systemd), firmware-chroot disabled, trixie-security archive configured."
 
       - name: Build ISO
         run: |
