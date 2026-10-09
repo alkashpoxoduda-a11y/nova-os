@@ -43,6 +43,7 @@ jobs:
       - name: Configure NOVA OS
         run: |
           mkdir -p config/package-lists
+          mkdir -p config/archives
 
           cat > config/package-lists/nova.list.chroot <<'EOF'
           task-kde-desktop
@@ -62,6 +63,14 @@ jobs:
           live-config-systemd
           EOF
 
+          cat > config/archives/trixie-security.list.chroot <<'EOF'
+          deb http://security.debian.org/debian-security trixie-security main contrib non-free non-free-firmware
+          EOF
+
+          cat > config/archives/trixie-security.list.binary <<'EOF'
+          deb http://security.debian.org/debian-security trixie-security main contrib non-free non-free-firmware
+          EOF
+
           sudo lb config \
             --mode debian \
             --system live \
@@ -69,13 +78,12 @@ jobs:
             --architectures amd64 \
             --linux-packages "linux-image" \
             --linux-flavours "amd64" \
+            --security false \
             --binary-images iso-hybrid \
             --archive-areas "main contrib non-free non-free-firmware" \
             --mirror-bootstrap http://deb.debian.org/debian \
             --mirror-chroot http://deb.debian.org/debian \
             --mirror-binary http://deb.debian.org/debian \
-            --mirror-chroot-security http://security.debian.org/debian-security \
-            --mirror-binary-security http://security.debian.org/debian-security \
             --debian-installer live \
             --iso-application "NOVA OS" \
             --iso-publisher "NOVA Project" \
@@ -84,6 +92,10 @@ jobs:
       - name: Verify Live Build Configuration
         run: |
           echo "Verifying live-build configuration..."
+          if grep -rn "trixie/updates" config/; then
+            echo "ERROR: Outdated 'trixie/updates' suite found in configuration!"
+            exit 1
+          fi
           if grep -rn "linux-generic" config/; then
             echo "ERROR: linux-generic found in effective configuration!"
             exit 1
@@ -92,7 +104,7 @@ jobs:
             echo "ERROR: LB_MODE is not debian!"
             exit 1
           fi
-          echo "Verification passed: Configured for Debian with linux-image-amd64."
+          echo "Verification passed: trixie-security archive configured correctly."
 
       - name: Build ISO
         run: |
