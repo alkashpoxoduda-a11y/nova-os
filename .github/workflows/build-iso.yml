@@ -43,6 +43,7 @@ jobs:
             xorriso \
             isolinux \
             syslinux-common \
+            syslinux-utils \
             grub-pc-bin \
             grub-efi-amd64-bin \
             mtools \
@@ -53,6 +54,8 @@ jobs:
         run: |
           mkdir -p config/package-lists
           mkdir -p config/archives
+          mkdir -p config/hooks/normal
+          mkdir -p config/bootloaders/isolinux
 
           cat > config/package-lists/nova.list.chroot <<'EOF'
           task-kde-desktop
@@ -69,11 +72,13 @@ jobs:
           linux-image-amd64
           live-boot
           live-config
-          live-config-systemd
           systemd-sysv
           firmware-linux
           firmware-linux-free
           firmware-misc-nonfree
+          isolinux
+          syslinux-common
+          syslinux-utils
           EOF
 
           cat > config/archives/trixie-security.list.chroot <<'EOF'
@@ -83,6 +88,27 @@ jobs:
           cat > config/archives/trixie-security.list.binary <<'EOF'
           deb http://security.debian.org/debian-security trixie-security main contrib non-free non-free-firmware
           EOF
+
+          cat > config/hooks/normal/0001-syslinux-symlinks.hook.chroot <<'EOF'
+          #!/bin/sh
+          set -e
+          mkdir -p /usr/lib/syslinux
+          if [ -f /usr/lib/ISOLINUX/isolinux.bin ]; then
+              ln -sf /usr/lib/ISOLINUX/isolinux.bin /usr/lib/syslinux/isolinux.bin
+          fi
+          if [ -d /usr/lib/syslinux/modules/bios ]; then
+              for f in /usr/lib/syslinux/modules/bios/*; do
+                  if [ -f "$f" ]; then
+                      ln -sf "$f" "/usr/lib/syslinux/$(basename "$f")"
+                  fi
+              done
+          fi
+          EOF
+          chmod +x config/hooks/normal/0001-syslinux-symlinks.hook.chroot
+
+          if [ -d /usr/share/live/build/bootloaders/isolinux ]; then
+              cp -r /usr/share/live/build/bootloaders/isolinux/* config/bootloaders/isolinux/
+          fi
 
           sudo lb config \
             --mode debian \
@@ -125,6 +151,10 @@ jobs:
             echo "ERROR: Obsolete package requested in package list!"
             exit 1
           fi
+          if [ ! -x config/hooks/normal/0001-syslinux-symlinks.hook.chroot ]; then
+            echo "ERROR: Syslinux chroot hook missing or not executable!"
+            exit 1
+          fi
           if ! grep -q 'LB_DEBIAN_INSTALLER="false"' config/binary; then
             echo "ERROR: LB_DEBIAN_INSTALLER is not false!"
             exit 1
@@ -141,7 +171,7 @@ jobs:
             echo "ERROR: LB_MODE is not debian!"
             exit 1
           fi
-          echo "Audit passed cleanly: debian-installer disabled (Calamares used), Systemd init, firmware-chroot disabled, trixie-security archive configured."
+          echo "Audit passed cleanly: debian-installer disabled, Systemd init, firmware-chroot disabled, syslinux 6.x compatibility hook enabled."
 
       - name: Build ISO
         run: |
