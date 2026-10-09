@@ -57,11 +57,18 @@ jobs:
           sudo
           calamares
           papirus-icon-theme
+          linux-image-amd64
+          live-boot
+          live-config
+          live-config-systemd
           EOF
 
           sudo lb config \
+            --mode debian \
             --distribution trixie \
             --architectures amd64 \
+            --linux-packages "linux-image" \
+            --linux-flavours "amd64" \
             --binary-images iso-hybrid \
             --archive-areas "main contrib non-free non-free-firmware" \
             --mirror-bootstrap http://deb.debian.org/debian \
