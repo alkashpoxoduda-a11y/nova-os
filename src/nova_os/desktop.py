@@ -1,7 +1,8 @@
 """
 NOVA Desktop Environment & Desktop Shell Manager
 Manages taskbar panel, app launcher menu, notification center, quick settings,
-virtual desktops, file manager engine, and profile switcher.
+virtual desktops, file manager engine, NetworkManager integration, and Wallpaper Manager.
+Includes low-resource layout optimization for 1366x768 screens.
 """
 
 import json
@@ -9,15 +10,18 @@ from typing import List, Dict, Any, Optional
 from pathlib import Path
 from nova_os.config import DATA_DIR, PROFILES
 from nova_os.i18n import get_text
+from nova_os.network import NetworkManagerEngine
+from nova_os.wallpaper import WallpaperManager
 
 class AppLauncher:
     def __init__(self):
         self.default_apps = [
             {"id": "nova-filemanager", "name": "NOVA File Manager", "icon": "folder-blue", "exec": "nova-fm", "category": "System"},
             {"id": "nova-terminal", "name": "NOVA Terminal", "icon": "utilities-terminal", "exec": "nova-terminal", "category": "Development"},
-            {"id": "nova-browser", "name": "Web Browser", "icon": "web-browser", "exec": "firefox-esr", "category": "Network"},
+            {"id": "nova-browser", "name": "Web Browser (Firefox ESR)", "icon": "web-browser", "exec": "firefox-esr", "category": "Network"},
             {"id": "nova-control-center", "name": "NOVA Control Center", "icon": "preferences-system", "exec": "nova-control-center", "category": "System"},
             {"id": "nova-shield", "name": "NOVA Shield Security", "icon": "security-high", "exec": "nova-shield", "category": "Security"},
+            {"id": "nova-software", "name": "NOVA App Center", "icon": "system-software-install", "exec": "nova-software", "category": "System"},
             {"id": "steam", "name": "Steam", "icon": "steam", "exec": "steam", "category": "Games"},
             {"id": "telegram", "name": "Telegram Desktop", "icon": "telegram", "exec": "telegram-desktop", "category": "Network"},
             {"id": "code", "name": "VS Code", "icon": "code", "exec": "code", "category": "Development"}
@@ -34,7 +38,7 @@ class NotificationCenter:
     def __init__(self):
         self.notifications: List[Dict[str, Any]] = []
 
-    def add_notification(self, title: str, message: str, level: str = "info", source: str = "System"):
+    def add_notification(self, title: str, message: str, level: str = "info", source: str = "NOVA OS"):
         item = {
             "id": len(self.notifications) + 1,
             "title": title,
@@ -88,13 +92,16 @@ class NovaFileManager:
 
 
 class NovaDesktopShell:
-    def __init__(self):
+    def __init__(self, screen_resolution: str = "1366x768"):
         self.app_launcher = AppLauncher()
         self.notifications = NotificationCenter()
         self.desktop_manager = VirtualDesktopManager()
         self.file_manager = NovaFileManager()
+        self.network = NetworkManagerEngine()
+        self.wallpaper = WallpaperManager()
         self.current_theme = "dark"
         self.active_profile = "nova-home"
+        self.screen_resolution = screen_resolution
         self.pinned_apps = ["nova-filemanager", "nova-terminal", "nova-browser", "nova-control-center"]
 
     def set_theme(self, theme: str) -> bool:
@@ -107,9 +114,20 @@ class NovaDesktopShell:
         if profile in PROFILES:
             self.active_profile = profile
             self.notifications.add_notification(
-                "Profile Changed",
-                f"Active system profile switched to {profile}",
+                "NOVA OS Profile Switch",
+                f"Системный профиль изменён на {profile}",
                 "info"
             )
             return True
         return False
+
+    def get_layout_config(self) -> Dict[str, Any]:
+        """Returns resolution-aware compact layout settings (optimized for 1366x768)."""
+        is_low_res = self.screen_resolution in ["1024x768", "1366x768"]
+        return {
+            "screen_resolution": self.screen_resolution,
+            "panel_height_px": 36 if is_low_res else 44,
+            "icon_size_px": 24 if is_low_res else 32,
+            "compact_view": is_low_res,
+            "max_settings_height_px": 600 if is_low_res else 900
+        }

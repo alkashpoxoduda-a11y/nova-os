@@ -1,11 +1,10 @@
 label live-@FLAVOUR@
-	menu label ^Live (@FLAVOUR@)
+	menu label ^NOVA OS Live (@FLAVOUR@)
 	menu default
 	kernel @KERNEL@
-	append initrd=@INITRD@ boot=live config @LB_BOOTAPPEND_LIVE@
+	append initrd=@INITRD@ boot=live config quiet splash nova.profile=nova-home @LB_BOOTAPPEND_LIVE@
 
 label live-@FLAVOUR@-failsafe
-	menu label ^Live (@FLAVOUR@ failsafe)
-	menu default
+	menu label ^NOVA OS Live (@FLAVOUR@ failsafe)
 	kernel @KERNEL@
-	append initrd=@INITRD@ boot=live config @LB_BOOTAPPEND_LIVE@ @LB_BOOTAPPEND_FAILSAFE@
+	append initrd=@INITRD@ boot=live config quiet splash nova.profile=nova-lite @LB_BOOTAPPEND_LIVE@ @LB_BOOTAPPEND_FAILSAFE@

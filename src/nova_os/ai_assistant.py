@@ -8,12 +8,14 @@ Capabilities:
 - Analyze system logs
 - Controlled permission mechanism for system execution
 - Customizable voice greetings (headphone connection, startup)
-- Standalone / offline execution mode
+- Standalone / offline speech synthesis (via spd-say / espeak-ng / local TTS)
 """
 
 import os
 import json
 import time
+import shutil
+import subprocess
 from pathlib import Path
 from typing import Dict, Any, List, Optional
 from nova_os.i18n import get_text
@@ -21,7 +23,7 @@ from nova_os.config import DATA_DIR, LOG_DIR
 
 
 class NovaAIAssistant:
-    def __init__(self, language: str = "ru", user_name: str = "User"):
+    def __init__(self, language: str = "ru", user_name: str = "Пользователь"):
         self.language = language
         self.user_name = user_name
         self.voice_enabled = True
@@ -31,50 +33,81 @@ class NovaAIAssistant:
         self.action_history: List[Dict[str, Any]] = []
         self.file_backups: Dict[str, str] = {}  # filepath -> original_content
 
+        # TTS Engine detection
+        self.tts_cmd = None
+        if shutil.which("spd-say"):
+            self.tts_cmd = "spd-say"
+        elif shutil.which("espeak-ng"):
+            self.tts_cmd = "espeak-ng"
+
+    def speak_text(self, text: str) -> bool:
+        """Synthesizes text audio output using local offline system speech engine."""
+        if not self.voice_enabled or not text.strip():
+            return False
+
+        if self.tts_cmd == "spd-say":
+            try:
+                lang_code = "ru" if self.language == "ru" else "en"
+                subprocess.Popen(["spd-say", "-l", lang_code, "-r", str(int((self.speech_rate - 1.0) * 100)), text])
+                return True
+            except Exception:
+                pass
+        elif self.tts_cmd == "espeak-ng":
+            try:
+                lang_code = "ru" if self.language == "ru" else "en"
+                subprocess.Popen(["espeak-ng", "-v", lang_code, text])
+                return True
+            except Exception:
+                pass
+
+        return False
+
     def get_greeting(self, headphone_event: bool = False) -> str:
         if headphone_event:
-            return get_text("ai_headphone_greeting", self.language, user=self.user_name)
-        return get_text("ai_greeting", self.language, user=self.user_name)
+            greeting = get_text("ai_headphone_greeting", self.language, user=self.user_name)
+        else:
+            greeting = get_text("ai_greeting", self.language, user=self.user_name)
+
+        if self.voice_enabled:
+            self.speak_text(greeting)
+
+        return greeting
 
     def process_query(self, query: str) -> Dict[str, Any]:
         q = query.strip().lower()
-
-        # Action record if history enabled
         entry = {"timestamp": time.time(), "query": query, "response": "", "action_taken": None}
 
-        # 1. Open application command
         if q.startswith("открой ") or q.startswith("open "):
             app_name = query.split(" ", 1)[1]
             response = f"Открываю приложение {app_name}."
             entry["response"] = response
             entry["action_taken"] = {"type": "open_app", "app": app_name}
             self._record_history(entry)
+            self.speak_text(response)
             return {"text": response, "action": "open_app", "target": app_name, "requires_permission": False}
 
-        # 2. System error / log analysis command
         if "ошибка" in q or "error" in q or "лог" in q or "log" in q:
-            response = "Анализирую системный журнал... Ошибок ядра не обнаружено. Все службы работают стабильно."
+            response = "Анализирую системный журнал NOVA OS... Ошибок ядра не обнаружено. Все службы работают стабильно."
             entry["response"] = response
             self._record_history(entry)
+            self.speak_text(response)
             return {"text": response, "action": "analyze_logs", "requires_permission": False}
 
-        # 3. Programming & Terminal command explanation
         if "как" in q or "how" in q or "sudo" in q or "apt" in q:
-            response = f"Для выполнения этого действия в NOVA OS используйте терминал. Команда: 'sudo apt update && sudo apt upgrade'. Она безопасно обновит пакеты дистрибутива."
+            response = "Для выполнения этого действия в NOVA OS используйте терминал. Команда: 'sudo apt update && sudo apt upgrade'. Она безопасно обновит пакеты системы."
             entry["response"] = response
             self._record_history(entry)
+            self.speak_text(response)
             return {"text": response, "action": "explain_command", "requires_permission": False}
 
-        # 4. Default assistant response
-        response = f"NOVA AI: Я могу помочь вам с настройкой системы, поиском файлов, программированием и диагностикой ошибок."
+        response = "NOVA AI: Я могу помочь вам с настройкой системы, поиском файлов, программированием и диагностикой ошибок."
         entry["response"] = response
         self._record_history(entry)
+        self.speak_text(response)
         return {"text": response, "action": "general_chat", "requires_permission": False}
 
     def create_or_edit_file(self, filepath: str, content: str, require_approval: bool = True) -> Dict[str, Any]:
         path = Path(filepath)
-
-        # File preview
         preview = {
             "filepath": str(path),
             "exists": path.exists(),

@@ -1,0 +1,24 @@
+<svg width="640" height="480" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0b0e14"/>
+      <stop offset="50%" stop-color="#1a1f2c"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+    <linearGradient id="novaGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="50%" stop-color="#818cf8"/>
+      <stop offset="100%" stop-color="#c084fc"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="480" fill="url(#bg)"/>
+  <!-- Emblem -->
+  <g transform="translate(320, 200)">
+    <circle r="60" fill="none" stroke="url(#novaGlow)" stroke-width="8" opacity="0.8"/>
+    <polygon points="0,-45 12,-12 45,0 12,12 0,45 -12,12 -45,0 -12,-12" fill="url(#novaGlow)"/>
+    <circle r="12" fill="#ffffff"/>
+  </g>
+  <!-- Text -->
+  <text x="320" y="310" font-family="'Segoe UI', Roboto, sans-serif" font-size="38" font-weight="bold" fill="#ffffff" text-anchor="middle" letter-spacing="4">NOVA OS</text>
+  <text x="320" y="345" font-family="'Segoe UI', Roboto, sans-serif" font-size="16" fill="#94a3b8" text-anchor="middle" letter-spacing="2">SUPERNOVA EDITION</text>
+</svg>
