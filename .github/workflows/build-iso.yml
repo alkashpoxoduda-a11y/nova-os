@@ -51,6 +51,25 @@ jobs:
             dosfstools \
             debian-archive-keyring
 
+      - name: Patch Live-Build Bootlogo Bug
+        run: |
+          sudo python3 -c '
+          with open("/usr/lib/live/build/lb_binary_syslinux", "r") as f:
+              content = f.read()
+
+          s1 = "(cd \"$tmpdir\" && cpio -i) < ${_TARGET}/bootlogo"
+          r1 = "if [ -e \"${_TARGET}/bootlogo\" ]; then (cd \"$tmpdir\" && cpio -i) < ${_TARGET}/bootlogo"
+
+          s2 = "(cd \"$tmpdir\" && ls -1 | cpio --quiet -o) > ${_TARGET}/bootlogo"
+          r2 = "(cd \"$tmpdir\" && ls -1 | cpio --quiet -o) > ${_TARGET}/bootlogo; fi"
+
+          if s1 in content and s2 in content:
+              content = content.replace(s1, r1).replace(s2, r2)
+              with open("/usr/lib/live/build/lb_binary_syslinux", "w") as f:
+                  f.write(content)
+              print("Patched lb_binary_syslinux successfully.")
+          '
+
       - name: Install Host rsvg Wrapper
         run: |
           sudo cat > /tmp/rsvg-wrapper <<'EOF'
@@ -117,6 +136,10 @@ jobs:
       - name: Pre-build Audit & Verification
         run: |
           echo "=== Pre-build Audit & Verification ==="
+          if ! grep -q 'if \[ -e "${_TARGET}/bootlogo" \]; then' /usr/lib/live/build/lb_binary_syslinux; then
+            echo "ERROR: lb_binary_syslinux bootlogo patch missing!"
+            exit 1
+          fi
           if [ ! -x /usr/bin/rsvg ]; then
             echo "ERROR: /usr/bin/rsvg wrapper is missing on host!"
             exit 1
@@ -165,7 +188,7 @@ jobs:
             echo "ERROR: LB_MODE is not debian!"
             exit 1
           fi
-          echo "Preflight Audit passed cleanly: rsvg wrapper verified, bootloader isolinux.bin and vesamenu.c32 binaries verified (no broken symlinks), debian-installer disabled, Systemd init, firmware-chroot disabled."
+          echo "Preflight Audit passed cleanly: bootlogo patch verified, rsvg wrapper verified, bootloader isolinux.bin and vesamenu.c32 binaries verified (no broken symlinks), debian-installer disabled, Systemd init, firmware-chroot disabled."
 
       - name: Build ISO
         run: |
