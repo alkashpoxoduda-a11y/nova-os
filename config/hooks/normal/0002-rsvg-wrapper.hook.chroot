@@ -1,6 +1,6 @@
 #!/bin/sh
 set -e
-cat > /usr/bin/rsvg <<'EOF'
+cat > /usr/bin/rsvg <<'RWRAP'
 #!/bin/sh
 FORMAT="png"
 WIDTH="640"
@@ -31,5 +31,5 @@ elif [ -n "$INPUT" ]; then
 else
     exec rsvg-convert "$@"
 fi
-EOF
+RWRAP
 chmod +x /usr/bin/rsvg
