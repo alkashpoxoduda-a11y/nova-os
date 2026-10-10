@@ -1,0 +1,35 @@
+#!/bin/sh
+set -e
+cat > /usr/bin/rsvg <<'EOF'
+#!/bin/sh
+FORMAT="png"
+WIDTH="640"
+HEIGHT="480"
+INPUT=""
+OUTPUT=""
+
+while [ $# -gt 0 ]; do
+    case "$1" in
+        --format) FORMAT="$2"; shift 2 ;;
+        --width) WIDTH="$2"; shift 2 ;;
+        --height) HEIGHT="$2"; shift 2 ;;
+        *)
+            if [ -z "$INPUT" ]; then
+                INPUT="$1"
+            elif [ -z "$OUTPUT" ]; then
+                OUTPUT="$1"
+            fi
+            shift
+            ;;
+    esac
+done
+
+if [ -n "$INPUT" ] && [ -n "$OUTPUT" ]; then
+    exec rsvg-convert -f "$FORMAT" -w "$WIDTH" -h "$HEIGHT" -o "$OUTPUT" "$INPUT"
+elif [ -n "$INPUT" ]; then
+    exec rsvg-convert -f "$FORMAT" -w "$WIDTH" -h "$HEIGHT" "$INPUT"
+else
+    exec rsvg-convert "$@"
+fi
+EOF
+chmod +x /usr/bin/rsvg

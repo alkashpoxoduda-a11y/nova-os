@@ -1,0 +1,13 @@
+#!/bin/sh
+set -e
+mkdir -p /usr/lib/syslinux
+if [ -f /usr/lib/ISOLINUX/isolinux.bin ]; then
+    ln -sf /usr/lib/ISOLINUX/isolinux.bin /usr/lib/syslinux/isolinux.bin
+fi
+if [ -d /usr/lib/syslinux/modules/bios ]; then
+    for f in /usr/lib/syslinux/modules/bios/*; do
+        if [ -f "$f" ]; then
+            ln -sf "$f" "/usr/lib/syslinux/$(basename "$f")"
+        fi
+    done
+fi
