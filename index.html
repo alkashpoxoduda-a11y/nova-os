@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#080b16">
+  <meta name="description" content="NOVA OS — независимый проект операционной системы с собственным интерфейсом, персонализацией и идеями для удобной работы на компьютере.">
+  <title>NOVA OS — новая идея операционной системы</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #080b16;
+      --panel: #10162a;
+      --panel-light: #151e36;
+      --text: #f5f7ff;
+      --muted: #a3aec9;
+      --blue: #6485ff;
+      --cyan: #54e2f2;
+      --line: rgba(173, 194, 255, .14);
+      --radius: 22px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 90px; }
+    body {
+      margin: 0;
+      background:
+        radial-gradient(ellipse at 80% 5%, rgba(62, 93, 214, .17), transparent 35%),
+        radial-gradient(ellipse at 0% 40%, rgba(29, 174, 205, .07), transparent 35%),
+        var(--bg);
+      color: var(--text);
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+      line-height: 1.6;
+    }
+    a { color: inherit; text-decoration: none; }
+    button, a { -webkit-tap-highlight-color: transparent; }
+    button { font: inherit; }
+    .container { width: min(1120px, calc(100% - 40px)); margin: auto; }
+    .muted { color: var(--muted); }
+    .gradient {
+      color: transparent;
+      background: linear-gradient(100deg, var(--cyan), #8aa1ff 70%, #b2a0ff);
+      -webkit-background-clip: text;
+      background-clip: text;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: rgba(8, 11, 22, .82);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--line);
+    }
+    .nav {
+      min-height: 76px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 22px;
+    }
+    .brand { display: inline-flex; align-items: center; gap: 12px; font-weight: 850; letter-spacing: 1.5px; }
+    .brand-mark {
+      display: grid; place-items: center;
+      width: 40px; height: 40px; border-radius: 13px;
+      background: linear-gradient(135deg, #53e4f1, #5974ff 65%, #9064f5);
+      color: #080b16; font-size: 25px; font-weight: 950;
+      box-shadow: 0 0 28px rgba(84, 139, 255, .2);
+    }
+    .nav-links { display: flex; align-items: center; gap: 27px; font-size: 14px; color: var(--muted); }
+    .nav-links a:hover { color: var(--text); }
+    .menu-toggle {
+      display: none; border: 1px solid var(--line); color: var(--text);
+      background: var(--panel); border-radius: 12px; padding: 8px 12px; cursor: pointer;
+    }
+
+    .button {
+      display: inline-flex; align-items: center; justify-content: center;
+      min-height: 48px; padding: 12px 20px; gap: 9px;
+      border-radius: 14px; font-weight: 750; font-size: 14px;
+      border: 1px solid transparent; transition: transform .2s, border-color .2s;
+      cursor: pointer;
+    }
+    .button:hover { transform: translateY(-2px); }
+    .button-primary { background: linear-gradient(110deg, #62e3ef, #7e91ff); color: #080b16; }
+    .button-secondary { background: rgba(255,255,255,.035); border-color: var(--line); }
+    .button-secondary:hover { border-color: rgba(84,226,242,.55); }
+
+    .hero { padding: 100px 0 78px; overflow: hidden; }
+    .hero-grid { display: grid; grid-template-columns: 1.03fr .97fr; align-items: center; gap: 54px; }
+    .eyebrow {
+      display: inline-flex; gap: 9px; align-items: center;
+      padding: 7px 12px; border: 1px solid var(--line); border-radius: 999px;
+      background: rgba(255,255,255,.025); color: #c9d5ff; font-size: 12px;
+      letter-spacing: .8px; text-transform: uppercase;
+    }
+    .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--cyan); box-shadow: 0 0 12px var(--cyan); }
+    h1 { font-size: clamp(43px, 6vw, 72px); line-height: 1.04; letter-spacing: -3px; margin: 24px 0; }
+    .hero-copy { max-width: 540px; color: var(--muted); font-size: 17px; }
+    .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
+    .fine-print { font-size: 12px; color: #8490ad; margin-top: 18px; }
+
+    .visual {
+      min-height: 360px; position: relative; display: grid; place-items: center;
+      border: 1px solid var(--line); border-radius: 30px; overflow: hidden;
+      background:
+        radial-gradient(circle at 50% 45%, rgba(65,110,255,.22), transparent 48%),
+        linear-gradient(145deg, #11182c, #090d1a);
+    }
+    .orb {
+      position: absolute; width: 260px; height: 260px; border-radius: 50%;
+      background: linear-gradient(135deg, #4fe4ed 5%, #527bff 55%, #9a66ef);
+      filter: blur(1px); opacity: .9;
+      box-shadow: 0 0 100px rgba(77,130,255,.27);
+    }
+    .orb::before, .orb::after {
+      content: ""; position: absolute; inset: 24px -25px;
+      border: 2px solid rgba(255,255,255,.58); border-radius: 48%;
+      transform: rotate(38deg);
+    }
+    .orb::after { inset: -12px 30px; transform: rotate(-43deg); border-color: rgba(255,255,255,.28); }
+    .orb-letter { position: relative; z-index: 1; color: #07101f; font-size: 140px; font-weight: 950; letter-spacing: -14px; text-shadow: 0 2px 25px rgba(255,255,255,.15); }
+    .visual-label {
+      position: absolute; bottom: 20px; left: 20px; right: 20px;
+      display: flex; justify-content: space-between; gap: 12px;
+      font-size: 11px; color: #b4c3e5; letter-spacing: 1.5px; text-transform: uppercase;
+    }
+
+    .strip { border-block: 1px solid var(--line); background: rgba(255,255,255,.018); }
+    .strip-grid { display: grid; grid-template-columns: repeat(3,1fr); }
+    .strip-item { padding: 23px 20px; text-align: center; }
+    .strip-item + .strip-item { border-left: 1px solid var(--line); }
+    .strip-item strong { display: block; font-size: 15px; }
+    .strip-item span { color: var(--muted); font-size: 12px; }
+
+    section { padding: 84px 0; }
+    .section-head { max-width: 680px; margin-bottom: 35px; }
+    .section-kicker { color: var(--cyan); text-transform: uppercase; font-size: 12px; font-weight: 800; letter-spacing: 2px; }
+    h2 { margin: 12px 0; font-size: clamp(30px, 4vw, 44px); line-height: 1.15; letter-spacing: -1.4px; }
+    .section-head p { color: var(--muted); margin: 12px 0 0; }
+    .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .card {
+      padding: 25px; background: linear-gradient(145deg, rgba(20,29,52,.88), rgba(13,18,34,.9));
+      border: 1px solid var(--line); border-radius: var(--radius);
+    }
+    .card-icon {
+      width: 45px; height: 45px; display: grid; place-items: center;
+      border-radius: 14px; background: rgba(90,130,255,.13); color: var(--cyan);
+      font-size: 22px; margin-bottom: 20px;
+    }
+    .card h3 { margin: 0 0 8px; font-size: 18px; }
+    .card p { color: var(--muted); font-size: 14px; margin: 0; }
+
+    .feature-panel {
+      display: grid; grid-template-columns: .85fr 1.15fr; gap: 40px;
+      padding: 35px; border-radius: 28px; border: 1px solid var(--line);
+      background: linear-gradient(120deg, rgba(29,43,78,.65), rgba(14,19,35,.75));
+    }
+    .feature-panel h3 { font-size: 25px; margin: 0 0 12px; }
+    .feature-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
+    .feature-list li { display: flex; gap: 12px; color: #d5def7; font-size: 14px; }
+    .check { color: var(--cyan); font-weight: 900; }
+
+    .status {
+      display: inline-flex; align-items: center; gap: 8px;
+      border: 1px solid rgba(255,199,102,.22); background: rgba(255,199,102,.06);
+      color: #ffd58b; padding: 7px 11px; border-radius: 999px; font-size: 12px;
+    }
+    .status::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+    .roadmap { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; }
+    .phase { padding: 20px; border: 1px solid var(--line); border-radius: 18px; background: rgba(255,255,255,.02); }
+    .phase b { display: block; color: var(--cyan); font-size: 12px; letter-spacing: 1px; }
+    .phase h3 { font-size: 16px; margin: 9px 0 6px; }
+    .phase p { font-size: 13px; color: var(--muted); margin: 0; }
+
+    .cta {
+      text-align: center; padding: 55px 25px;
+      border: 1px solid rgba(99,141,255,.25); border-radius: 28px;
+      background: radial-gradient(ellipse at 50% 0%, rgba(81,121,255,.19), transparent 65%), var(--panel);
+    }
+    .cta p { color: var(--muted); max-width: 570px; margin: 14px auto 25px; }
+    .cta-actions { display: flex; justify-content: center; flex-wrap: wrap; gap: 12px; }
+
+    .faq { display: grid; gap: 10px; max-width: 800px; }
+    details { padding: 18px 20px; border: 1px solid var(--line); border-radius: 15px; background: rgba(255,255,255,.02); }
+    summary { cursor: pointer; font-weight: 700; }
+    details p { color: var(--muted); font-size: 14px; margin-bottom: 0; }
+
+    footer { padding: 28px 0; border-top: 1px solid var(--line); color: var(--muted); font-size: 12px; }
+    .footer-inner { display: flex; justify-content: space-between; gap: 20px; align-items: center; }
+    .footer-links { display: flex; gap: 18px; flex-wrap: wrap; }
+    .footer-links a:hover { color: var(--text); }
+
+    @media (max-width: 850px) {
+      .hero { padding-top: 65px; }
+      .hero-grid { grid-template-columns: 1fr; gap: 35px; }
+      .visual { min-height: 300px; }
+      .cards { grid-template-columns: repeat(2, 1fr); }
+      .feature-panel { grid-template-columns: 1fr; gap: 25px; }
+      .roadmap { grid-template-columns: repeat(2, 1fr); }
+      .nav-links {
+        display: none; position: absolute; top: 75px; left: 0; right: 0;
+        padding: 20px; background: #0b1020; border-bottom: 1px solid var(--line);
+        flex-direction: column; align-items: stretch; gap: 0;
+      }
+      .nav-links.open { display: flex; }
+      .nav-links a { padding: 12px 5px; }
+      .menu-toggle { display: block; }
+    }
+    @media (max-width: 540px) {
+      .container { width: min(100% - 28px, 1120px); }
+      .nav { min-height: 66px; }
+      .brand-mark { width: 36px; height: 36px; }
+      .hero { padding: 49px 0 50px; }
+      h1 { letter-spacing: -1.8px; font-size: clamp(39px, 12vw, 55px); }
+      .hero-copy { font-size: 15px; }
+      .hero-actions { display: grid; grid-template-columns: 1fr; }
+      .button { width: 100%; }
+      .visual { min-height: 250px; }
+      .orb { width: 180px; height: 180px; }
+      .orb-letter { font-size: 100px; }
+      .strip-grid { grid-template-columns: 1fr; }
+      .strip-item { padding: 15px; }
+      .strip-item + .strip-item { border-left: 0; border-top: 1px solid var(--line); }
+      section { padding: 60px 0; }
+      .cards, .roadmap { grid-template-columns: 1fr; }
+      .card { padding: 21px; }
+      .feature-panel { padding: 23px; }
+      .cta { padding: 36px 18px; }
+      .footer-inner { align-items: flex-start; flex-direction: column; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container nav">
+      <a class="brand" href="#home" aria-label="NOVA OS — на главную">
+        <span class="brand-mark">N</span><span>NOVA OS</span>
+      </a>
+      <button class="menu-toggle" id="menuToggle" aria-expanded="false" aria-controls="navLinks">Меню ☰</button>
+      <nav class="nav-links" id="navLinks" aria-label="Главная навигация">
+        <a href="#about">О системе</a>
+        <a href="#features">Возможности</a>
+        <a href="#roadmap">Разработка</a>
+        <a href="#faq">FAQ</a>
+        <a href="https://t.me/novaos1" target="_blank" rel="noopener noreferrer">Telegram ↗</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero" id="home">
+      <div class="container hero-grid">
+        <div>
+          <div class="eyebrow"><span class="dot"></span> Независимый проект ОС</div>
+          <h1>Новый взгляд<br>на <span class="gradient">операционную систему.</span></h1>
+          <p class="hero-copy">
+            NOVA OS — проект операционной системы для компьютеров,
+            в котором мы создаём собственный интерфейс, продумываем удобные
+            системные инструменты и стремимся объединить стиль, простоту и практичность.
+          </p>
+          <div class="hero-actions">
+            <a class="button button-primary" href="https://github.com/alkashpoxoduda-a11y/nova-os" target="_blank" rel="noopener noreferrer">Посмотреть проект ↗</a>
+            <a class="button button-secondary" href="https://t.me/novaos1" target="_blank" rel="noopener noreferrer">Наш Telegram ↗</a>
+          </div>
+          <p class="fine-print">Проект находится в разработке. Возможности уточняются по мере тестирования.</p>
+        </div>
+        <div class="visual" aria-label="Фирменная графика NOVA OS">
+          <div class="orb"></div>
+          <div class="orb-letter">N</div>
+          <div class="visual-label"><span>NOVA OS</span><span>Explore what's next</span></div>
+        </div>
+      </div>
+    </section>
+
+    <div class="strip">
+      <div class="container strip-grid">
+        <div class="strip-item"><strong>Собственный стиль</strong><span>Узнаваемый визуальный язык</span></div>
+        <div class="strip-item"><strong>Для компьютеров</strong><span>Проект настольной ОС</span></div>
+        <div class="strip-item"><strong>Открытая разработка</strong><span>Код и ход работы на GitHub</span></div>
+      </div>
+    </div>
+
+    <section id="about">
+      <div class="container">
+        <div class="section-head">
+          <span class="section-kicker">О проекте</span>
+          <h2>ОС, которую мы <span class="gradient">создаём шаг за шагом.</span></h2>
+          <p>NOVA OS развивается как самостоятельный проект на базе Debian. Наша задача — сделать систему визуально цельной, понятной и удобной для повседневной работы.</p>
+        </div>
+        <div class="feature-panel">
+          <div>
+            <h3>Не только внешний вид</h3>
+            <p class="muted">Красивая оболочка — лишь начало. Важны реальные системные функции, надёжная загрузка, совместимость, безопасность и понятные настройки.</p>
+            <span class="status">Активная разработка</span>
+          </div>
+          <ul class="feature-list">
+            <li><span class="check">✦</span><span>Рабочая среда с фирменным оформлением NOVA.</span></li>
+            <li><span class="check">✦</span><span>Настройки и персонализация как часть единого опыта.</span></li>
+            <li><span class="check">✦</span><span>Проверка работы системы на виртуальных машинах и совместимом оборудовании.</span></li>
+            <li><span class="check">✦</span><span>Постепенное развитие функций с тестированием и исправлением ошибок.</span></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="features">
+      <div class="container">
+        <div class="section-head">
+          <span class="section-kicker">Направления разработки</span>
+          <h2>Продуманная система. <span class="gradient">Единый опыт.</span></h2>
+          <p>Вот направления, над которыми строится концепция NOVA OS. Это не обещание, что каждая функция уже готова: новые возможности будут появляться после реализации и проверки.</p>
+        </div>
+        <div class="cards">
+          <article class="card">
+            <div class="card-icon">◈</div>
+            <h3>NOVA Desktop</h3>
+            <p>Рабочая среда, окна, меню, панель задач и единый визуальный стиль.</p>
+          </article>
+          <article class="card">
+            <div class="card-icon">⚙</div>
+            <h3>NOVA Control</h3>
+            <p>Настройки системы, персонализация и управление основными параметрами.</p>
+          </article>
+          <article class="card">
+            <div class="card-icon">⌁</div>
+            <h3>NOVA Connect</h3>
+            <p>Удобное управление сетевыми подключениями и доступом в интернет.</p>
+          </article>
+          <article class="card">
+            <div class="card-icon">▤</div>
+            <h3>NOVA Hub</h3>
+            <p>Концепция единого центра поиска и установки приложений.</p>
+          </article>
+          <article class="card">
+            <div class="card-icon">⬡</div>
+            <h3>NOVA Sentinel</h3>
+            <p>Планируемое направление системной безопасности и проверки файлов.</p>
+          </article>
+          <article class="card">
+            <div class="card-icon">✧</div>
+            <h3>NOVA Assistant</h3>
+            <p>Идея помощника для работы с системой и объяснения распространённых проблем.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="roadmap">
+      <div class="container">
+        <div class="section-head">
+          <span class="section-kicker">План развития</span>
+          <h2>От загрузки до <span class="gradient">полноценной системы.</span></h2>
+          <p>Приоритеты могут меняться по результатам тестирования. Стабильность важнее количества функций.</p>
+        </div>
+        <div class="roadmap">
+          <article class="phase">
+            <b>ЭТАП 01</b>
+            <h3>Основа</h3>
+            <p>Сборка ISO, загрузка системы, проверка рабочего стола и исправление критических ошибок.</p>
+          </article>
+          <article class="phase">
+            <b>ЭТАП 02</b>
+            <h3>Повседневная работа</h3>
+            <p>Язык, настройки, сеть, файлы, устройства и удобство использования.</p>
+          </article>
+          <article class="phase">
+            <b>ЭТАП 03</b>
+            <h3>Инструменты</h3>
+            <p>Приложения, диагностика, обновления и дополнительные системные функции.</p>
+          </article>
+          <article class="phase">
+            <b>ЭТАП 04</b>
+            <h3>Расширение</h3>
+            <p>Безопасность, восстановление, персонализация и помощник — после проверки основы.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="community">
+      <div class="container">
+        <div class="cta">
+          <span class="section-kicker">Присоединяйся к проекту</span>
+          <h2>Следи за развитием <span class="gradient">NOVA OS.</span></h2>
+          <p>Новости, ход разработки и обсуждения проекта — в Telegram. Исходный код и технические изменения — в GitHub.</p>
+          <div class="cta-actions">
+            <a class="button button-primary" href="https://t.me/novaos1" target="_blank" rel="noopener noreferrer">Открыть Telegram ↗</a>
+            <a class="button button-secondary" href="https://github.com/alkashpoxoduda-a11y/nova-os" target="_blank" rel="noopener noreferrer">Открыть GitHub ↗</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="faq">
+      <div class="container">
+        <div class="section-head">
+          <span class="section-kicker">FAQ</span>
+          <h2>Частые вопросы</h2>
+        </div>
+        <div class="faq">
+          <details>
+            <summary>Можно ли уже установить NOVA OS?</summary>
+            <p>Сборка ISO проекта создавалась для тестирования. Перед публичным распространением нужно подтвердить, что образ стабильно загружается и основные функции работают. На этой странице пока нет ссылки на скачивание.</p>
+          </details>
+          <details>
+            <summary>На какой системе основана NOVA OS?</summary>
+            <p>Проект использует Debian Live Build. Конкретные версии, требования к оборудованию и статус функций следует публиковать после проверки текущей сборки.</p>
+          </details>
+          <details>
+            <summary>Будет ли система бесплатной?</summary>
+            <p>Условия распространения следует определять с учётом лицензий проекта и входящих в него компонентов. Следите за официальными обновлениями.</p>
+          </details>
+          <details>
+            <summary>Где следить за разработкой?</summary>
+            <p>В Telegram-канале <a href="https://t.me/novaos1" target="_blank" rel="noopener noreferrer">t.me/novaos1</a> и в <a href="https://github.com/alkashpoxoduda-a11y/nova-os" target="_blank" rel="noopener noreferrer">репозитории GitHub</a>.</p>
+          </details>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container footer-inner">
+      <a class="brand" href="#home"><span class="brand-mark">N</span><span>NOVA OS</span></a>
+      <span>© <span id="year"></span> NOVA OS. Независимый проект.</span>
+      <div class="footer-links">
+        <a href="https://t.me/novaos1" target="_blank" rel="noopener noreferrer">Telegram</a>
+        <a href="https://github.com/alkashpoxoduda-a11y/nova-os" target="_blank" rel="noopener noreferrer">GitHub</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const toggle = document.getElementById('menuToggle');
+    const nav = document.getElementById('navLinks');
+
+    toggle.addEventListener('click', () => {
+      const isOpen = nav.classList.toggle('open');
+      toggle.setAttribute('aria-expanded', String(isOpen));
+      toggle.textContent = isOpen ? 'Закрыть ✕' : 'Меню ☰';
+    });
+
+    nav.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => {
+        nav.classList.remove('open');
+        toggle.setAttribute('aria-expanded', 'false');
+        toggle.textContent = 'Меню ☰';
+      });
+    });
+
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
