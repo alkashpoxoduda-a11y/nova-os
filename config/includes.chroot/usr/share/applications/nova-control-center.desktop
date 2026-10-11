@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=NOVA Control Center
+Comment=Единый центр управления NOVA OS
+Exec=nova-control-center
+Icon=/usr/share/nova-os/branding/nova-app-icon.png
+Terminal=false
+Categories=Settings;DesktopSettings;
+NoDisplay=false

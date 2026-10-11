@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Display Settings (NOVA Control Center)
+Exec=nova-control-center --page=display
+Icon=/usr/share/nova-os/branding/nova-app-icon.png
+Terminal=false
+NoDisplay=true
