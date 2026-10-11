@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=NOVA OS Desktop Shell
+Comment=NOVA OS Primary Desktop Environment
+Exec=python3 -m nova_os.desktop
+Type=Application
+DesktopNames=NOVA

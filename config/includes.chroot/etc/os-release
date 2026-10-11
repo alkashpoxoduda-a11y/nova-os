@@ -1,8 +1,7 @@
 NAME="NOVA OS"
+ID=novaos
+PRETTY_NAME="NOVA OS Supernova Edition"
 VERSION="1.0 (Supernova)"
-ID=nova-os
-ID_LIKE=debian
-PRETTY_NAME="NOVA OS Supernova 1.0 (x86-64)"
 VERSION_ID="1.0"
 HOME_URL="https://nova-os.org"
 SUPPORT_URL="https://nova-os.org/support"
