@@ -23,7 +23,7 @@ syslinux-utils
 librsvg2-bin
 clamav
 clamav-daemon
-freshclam
+clamav-freshclam
 udisks2
 dbus
 lightdm
