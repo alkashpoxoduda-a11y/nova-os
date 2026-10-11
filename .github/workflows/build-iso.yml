@@ -6,6 +6,10 @@ on:
   push:
   pull_request:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
@@ -32,6 +36,15 @@ jobs:
           sudo rm -rf /usr/local/lib/android
           sudo rm -rf /opt/ghc
           sudo rm -rf /usr/share/dotnet
+
+      - name: Disable background APT services & Wait for Lock
+        run: |
+          sudo systemctl stop apt-daily.service apt-daily-upgrade.service unattended-upgrades.service 2>/dev/null || true
+          sudo systemctl disable apt-daily.service apt-daily-upgrade.service unattended-upgrades.service apt-daily.timer apt-daily-upgrade.timer 2>/dev/null || true
+          while sudo fuser /var/lib/dpkg/lock-frontend /var/lib/apt/lists/lock /var/cache/apt/archives/lock >/dev/null 2>&1; do
+            echo "Waiting for background APT process to release lock..."
+            sleep 2
+          done
 
       - name: Install build tools
         run: |
@@ -111,6 +124,8 @@ jobs:
         run: |
           chmod +x config/hooks/normal/*.hook.chroot
 
+          sudo lb clean --purge || true
+
           sudo lb config \
             --mode debian \
             --system live \
@@ -123,6 +138,7 @@ jobs:
             --firmware-chroot false \
             --firmware-binary false \
             --security false \
+            --cache-packages false \
             --binary-images iso-hybrid \
             --archive-areas "main contrib non-free non-free-firmware" \
             --mirror-bootstrap http://deb.debian.org/debian \
@@ -188,7 +204,7 @@ jobs:
             echo "ERROR: LB_MODE is not debian!"
             exit 1
           fi
-          echo "Preflight Audit passed cleanly: bootlogo patch verified, rsvg wrapper verified, bootloader isolinux.bin and vesamenu.c32 binaries verified (no broken symlinks), debian-installer disabled, Systemd init, firmware-chroot disabled."
+          echo "Preflight Audit passed cleanly: APT locks handled, concurrency controlled, bootlogo patch verified, rsvg wrapper verified, bootloader isolinux.bin and vesamenu.c32 binaries verified (no broken symlinks), debian-installer disabled, Systemd init, firmware-chroot disabled."
 
       - name: Build ISO
         run: |
