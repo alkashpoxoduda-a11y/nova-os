@@ -1,5 +1,6 @@
 task-kde-desktop
 network-manager
+network-manager-gnome
 firefox-esr
 dolphin
 konsole
@@ -20,3 +21,12 @@ isolinux
 syslinux-common
 syslinux-utils
 librsvg2-bin
+clamav
+clamav-daemon
+freshclam
+udisks2
+dbus
+lightdm
+python3
+python3-gi
+python3-pyqt5

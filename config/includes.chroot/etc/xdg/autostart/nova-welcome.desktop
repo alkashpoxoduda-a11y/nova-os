@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=NOVA Welcome
+Comment=Мастер первого запуска NOVA OS
+Exec=nova-welcome
+Icon=/usr/share/nova-os/branding/nova-app-icon.png
+Terminal=false
+Categories=System;
+X-GNOME-Autostart-enabled=true
