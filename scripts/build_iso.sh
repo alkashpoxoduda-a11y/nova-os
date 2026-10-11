@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Script to build NOVA OS Live Bootable ISO based on Debian Stable
+# Script to build NOVA OS Live Bootable ISO Image
 set -euo pipefail
 
 ISO_DIR="build_iso"
@@ -51,7 +51,7 @@ fi
 
 if [ ! -f "${ISO_DIR}/iso/live/filesystem.squashfs" ]; then
     echo "Notice: Live root filesystem (filesystem.squashfs) not found."
-    echo "In production ISO build, live-build / debootstrap populates ${ISO_DIR}/iso/live/."
+    echo "In production ISO build, live-build populates build_iso/iso/live/."
 fi
 
 echo "Creating bootable ISO with xorriso..."
